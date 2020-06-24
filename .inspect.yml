@@ -1,0 +1,11 @@
+inspect:
+- app:
+    name: ShiftLeftJava
+    additional-findings:
+    - hsl-secrets
+    policy: io.shiftleft/helloshiftleft
+    language: JAVA
+additional-findings:
+  hsl-secrets:
+    entropy: 0.5
+    name: secrets

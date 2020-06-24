@@ -1,0 +1,36 @@
+variables:
+- group: shiftleft-token
+
+trigger:
+- master
+- feature/*
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: false
+    goals: 'package'
+- task: PowerShell@2
+  displayName: Download ShiftLeft cli
+  inputs:
+    targetType: 'inline'
+    script: |
+      Invoke-WebRequest -Uri 'https://cdn.shiftleft.io/download/sl-latest-windows-x64.zip' -OutFile $(Agent.HomeDirectory)\sl.zip
+      Expand-Archive -Path $(Agent.HomeDirectory)\sl.zip -DestinationPath $(Agent.HomeDirectory)\
+- task: CmdLine@2
+  displayName: Analyze with Inspect
+  inputs:
+    script: |
+      $(Agent.HomeDirectory)\sl.exe analyze --force --app ShiftLeftJavaAzWin --verbose --tag branch=$(Build.SourceBranchName) --java --cpg target/hello-shiftleft-0.0.1.jar
+    workingDirectory: '$(Build.SourcesDirectory)'
+  env:
+    SHIFTLEFT_ORG_ID: $(SHIFTLEFT_ORG_ID)
+    SHIFTLEFT_ACCESS_TOKEN: $(SHIFTLEFT_ACCESS_TOKEN)
