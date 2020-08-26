@@ -1,0 +1,6 @@
+build_rules:
+  - id: build-rule-identifier
+    severity:
+      - SEVERITY_MEDIUM_IMPACT
+      - SEVERITY_HIGH_IMPACT
+      - SEVERITY_LOW_IMPACT
