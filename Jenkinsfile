@@ -9,13 +9,6 @@ pipeline {
                     mvn clean package -B
                 '''
       }
-      post {
-        always {
-          junit '**/target/surefire-reports/**/*.xml'
-
-        }
-
-      }
     }
     stage('Scan App - Build Container') {
       parallel {
