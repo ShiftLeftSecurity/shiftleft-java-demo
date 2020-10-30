@@ -50,7 +50,7 @@ node () {
    }
 
    stage('SLAnalyze') {
-       dir("<path_to_your_project_package>") {
+       {
            sh '/usr/local/bin/sl analyze --app HelloShiftLeft --java target/hello-shiftleft-*.jar'
        }
    }
