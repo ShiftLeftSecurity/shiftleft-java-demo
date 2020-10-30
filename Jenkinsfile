@@ -12,7 +12,7 @@ node () {
       // Get the Maven tool.
       // ** NOTE: This 'M3' Maven tool must be configured
       // **       in the global configuration.           
-      // mvnHome = tool 'M3'
+      mvnHome = tool 'M3'
       
       // sh 'git rev-parse HEAD > commit'
       // commitId = readFile('commit').trim()
