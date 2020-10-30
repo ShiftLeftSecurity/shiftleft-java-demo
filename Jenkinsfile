@@ -24,11 +24,11 @@ node () {
       try{
         if (isUnix()) {
           configFileProvider([configFile(fileId: 'f8c43603-b756-4195-9207-e327bb4e0ccc', variable: 'MY_SETTINGS_XML')]) {
-           sh "./mvnw -B clean package"
+           sh "./mvn -B clean package"
           }
               
         } else {
-           bat(/mvnw.cmd -B clean package/)
+           bat(/mvn -B clean package/)
         }
         
         currentBuild.result = 'SUCCESS'
