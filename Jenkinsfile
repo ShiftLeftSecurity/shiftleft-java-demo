@@ -1,58 +1,90 @@
-import groovy.json.*
-
-node () {
-   def mvnHome, commitId
-    
-   stage('Preparation') { // for display purposes
-      // Get some code from a GitHub repository
-      // git 'git@github.com:CMYanko/struts2-showcase-demo.git'
-      checkout scm
-      
-      
-      // Get the Maven tool.
-      // ** NOTE: This 'M3' Maven tool must be configured
-      // **       in the global configuration.           
-      mvnHome = tool 'M3'
-      
-      // sh 'git rev-parse HEAD > commit'
-      // commitId = readFile('commit').trim()
-      // sh "echo my commitid ${commitId}"
-
-   }
-   stage('Build') {
-      // Run the maven build
-      try{
-        if (isUnix()) {
-          configFileProvider([configFile(fileId: 'f8c43603-b756-4195-9207-e327bb4e0ccc', variable: 'MY_SETTINGS_XML')]) {
-           sh "./mvn -B clean package"
-          }
-              
-        } else {
-           bat(/mvn -B clean package/)
-        }
-        
-        currentBuild.result = 'SUCCESS'
-
-      }catch(Exception err){
-        currentBuild.result = 'FAILURE'
-      
+pipeline {
+  agent any
+  stages {
+    stage('Build') {
+      steps {
+        sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+                    mvn clean package -B
+                '''
       }
+      post {
+        always {
+          junit '**/target/surefire-reports/**/*.xml'
 
-      sh "echo current build status ${currentBuild.result}"
-      /*
-      if (currentBuild.result == 'FAILURE') {
-        postGitHub(commitId, 'failure', 'build', 'Build failed')
-        return
-      } else {
-        postGitHub(commitId, 'success', 'build', 'Build succeeded')
-      } */
-      
-   }
+        }
 
-   stage('SLAnalyze') {
-       {
-           sh '/usr/local/bin/sl analyze --app HelloShiftLeft --java target/hello-shiftleft-*.jar'
-       }
-   }
-   
+      }
+    }
+    stage('Scan App - Build Container') {
+      parallel {
+        stage('IQ-BOM') {
+          steps {
+            nexusPolicyEvaluation(iqApplication: 'sljavademo', iqStage: 'build', iqScanPatterns: [[scanPattern: '']])
+          }
+        }
+        stage('Static Analysis') {
+          steps {
+            sh '/usr/local/bin/sl analyze --app HelloShiftLeft --java target/hello-shiftleft-*.jar'
+          }
+        }
+        stage('Build Container') {
+          steps {
+            echo '...need to learn the build process first'
+          }
+        }
+      }
+    }
+    stage('Test Container') {
+      steps {
+        echo '...run container and test it'
+      }
+      post {
+        success {
+          echo '...the Test Scan Passed!'
+
+        }
+
+        failure {
+          echo '...the Test  FAILED'
+          error '...the Container Test FAILED'
+
+        }
+
+      }
+    }
+    stage('Scan Container') {
+      steps {
+        echo '...TODO scan container'
+      }
+      post {
+        success {
+          echo '...the IQ Scan PASSED'
+          postGitHub(commitId, 'success', 'analysis', 'Nexus Lifecycle Container Analysis succeeded', "${policyEvaluationResult.applicationCompositionReportUrl}")
+
+        }
+
+        failure {
+          echo '...the IQ Scan FAILED'
+          postGitHub(commitId, 'failure', 'analysis', 'Nexus Lifecycle Containe Analysis failed', "${policyEvaluationResult.applicationCompositionReportUrl}")
+          error '...the IQ Scan FAILED'
+
+        }
+
+      }
+    }
+    stage('Publish Container') {
+      when {
+        branch 'master'
+      }
+      steps {
+        echo '...figure out container'
+      }
+    }
+  }
+  tools {
+    jdk 'jdk8'
+    maven 'M3'
+  }
 }
