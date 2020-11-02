@@ -36,6 +36,13 @@ jobs:
       env:
         SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
         SHIFTLEFT_ORG_ID: ${{ secrets.SHIFTLEFT_ORG_ID }}
+    - name: Create status check
+      run: |
+        URL="https://www.shiftleft.io/violationlist/ShiftLeftJava?apps=ShiftLeftJava&isApp=1"
+        GH_CHECK_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/check-runs"
+        curl -XPOST $GH_CHECK_URL -H "Authorization: Token ${GITHUB_TOKEN}" -H "accept: application/vnd.github.antiope-preview+json" -H "Content-Type: application/json" -d "{\"name\": \"ShiftLeft NG SAST\", \"head_sha\": \"${GITHUB_REF}\", \"external_id\": \"ShiftLeftJava\", \"details_url\": \"${URL}\", \"status\": \"completed\", \"conclusion\": \"action_required\", \"output\": {\"title\": \"ShiftLeft NG SAST Findings\", \"summary\": \"Visit ${URL} for the findings\"}}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
   Build-Rules: 
     runs-on: ubuntu-latest
