@@ -378,10 +378,20 @@ public class CustomerController {
 	 *            the customer id
 	 */
 	@RequestMapping(value = "/customers/{customerId}", method = RequestMethod.DELETE)
-	public void removeCustomer(@PathVariable("customerId") Long customerId, HttpServletResponse httpResponse) {
+	public void removeCustomer(@PathVariable("customerId") Long customerId, HttpServletResponse httpResponse) throws NoSuchAlgorithmException {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		}
+		catch (Exception e) {
+			throw new NoSuchAlgorithmException(e);
+		}
 
-		if (customerRepository.exists(customerId)) {
-			customerRepository.delete(customerId);
+		md.update(customerId.toString().getBytes());
+		byte[] digest = md.digest();
+		String newCustomerId = new String(digest);
+		if (customerRepository.exists(Long.parseLong(newCustomerId))) {
+			customerRepository.delete(Long.parseLong(newCustomerId));
 		}
 
 		httpResponse.setStatus(HttpStatus.NO_CONTENT.value());
