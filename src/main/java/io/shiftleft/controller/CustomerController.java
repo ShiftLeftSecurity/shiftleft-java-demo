@@ -125,7 +125,7 @@ public class CustomerController {
 	  Account account = new Account(4242l,1234, "savings", 1, 0);
 	  //FOR DEBUGGING ONLY
 	  //log.info("Account Data is {}", account);
-	  log.info("Customer Data is {}", customer);
+	  //log.info("Customer Data is {}", customer);
 
       try {
         dispatchEventToSalesForce(String.format(" Customer %s Logged into SalesForce", customer));
