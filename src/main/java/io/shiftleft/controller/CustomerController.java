@@ -51,7 +51,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
-
+import org.springframekwork.validation.annotation.Validated;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 
 import io.shiftleft.data.DataLoader;
@@ -71,7 +71,7 @@ import org.springframework.web.util.HtmlUtils;
 @PropertySource({ "classpath:config/application-sfdc.properties" })
 @RestController
 public class CustomerController {
-
+	@Validated
 	@Autowired
 	private CustomerRepository customerRepository;
 
