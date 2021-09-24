@@ -6,7 +6,7 @@ jobs:
     environment:
       productId: 1739
       subProductId: 2987
-      environment: Production
+      environment: Staging
       token: 99c59d3c-c705-4e0f-ac07-a19735b617ad
       buildTool: CIRCLE_CI
       buildNumber: "<< pipeline.number >>"
