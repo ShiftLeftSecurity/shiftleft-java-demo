@@ -4,9 +4,9 @@ jobs:
     docker:
       - image: byrnedo/alpine-curl
     environment:
-      productId: 1739
-      subProductId: 2987
-      environment: Staging
+      productId: 1752
+      subProductId: 3007
+      environment: Production
       token: 99c59d3c-c705-4e0f-ac07-a19735b617ad
       buildTool: CIRCLE_CI
       buildNumber: "<< pipeline.number >>"
