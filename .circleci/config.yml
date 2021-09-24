@@ -1,21 +1,22 @@
-i=0
-while [ $i -lt 30 ]
-do
-  curl --location --request POST 'https://qa.armorcode.ai/client/buildvalidation' --header 'Content-Type: application/json' --header 'Authorization: Bearer b2b10edd-8919-4ff4-b879-cdb7c9dc0f70'  -d '{ "env": "Production", "product": "1728", "subProduct": "2974", "buildNumber": "'"$BUILD_NUMBER"'", "buildTool":"TEAM_CITY"}' > result.json
-  status=$(grep -o '"status":"[^"]*' result.json  | grep -o '[^"]*$')
-  if [ "$status" = "HOLD" ]
-    then
-    echo "Armorcode SLA failed."
-    if [ $i = 30 ]
-    then
-        echo "Exiting with error code 1"
-        exit 1
-    fi
-    echo "Sleeping 10 seconds before trying again. You can temporarily release the build from Armorcode console"
-    sleep 10
-    i=$(( $i + 1 ))
-    else
-    break
-    fi
-done
-echo "SLA met at Armorcode"
+version: 2.1
+jobs:
+  armorcode-validate:
+    docker:
+      - image: byrnedo/alpine-curl
+    environment:
+      productId: 1728
+      subProductId: 2974
+      environment: Production
+      token: b2b10edd-8919-4ff4-b879-cdb7c9dc0f70
+      buildTool: CIRCLE_CI
+      buildNumber: "<< pipeline.number >>"
+    steps:
+      - run:
+          name: "Armorcode Validate"
+          command: |
+              wget https://qa.armorcode.ai/static/scripts/slastatus.sh
+              sh slastatus.sh
+workflows:
+  armorcode-validation-workflow:
+    jobs:
+      - armorcode-validate
