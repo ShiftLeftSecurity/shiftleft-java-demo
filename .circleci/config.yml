@@ -4,10 +4,10 @@ jobs:
     docker:
       - image: byrnedo/alpine-curl
     environment:
-      productId: 938
-      subProductId: 2111
+      productId: 964
+      subProductId: 2163
       environment: Production
-      token: 578f24d3-e38a-48c9-9e14-3f2c38d26011
+      token: 4f7f1545-b73c-42c0-9d45-c9a8a0d5074d
       buildTool: CIRCLE_CI
       buildNumber: "<< pipeline.number >>"
     steps:
