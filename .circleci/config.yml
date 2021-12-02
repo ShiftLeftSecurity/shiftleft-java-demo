@@ -7,7 +7,7 @@ jobs:
       productId: 2155
       subProductId: 4186
       environment: Staging
-      token: 91350414-d5d8-45f8-a319-2a8219106136
+      token: c73a8678-a2b8-4b92-ad66-f01685aec3e8
       buildTool: CIRCLE_CI
       buildNumber: "<< pipeline.number >>"
     steps:
