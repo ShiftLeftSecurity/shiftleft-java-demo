@@ -25,6 +25,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SearchController {
 
   @RequestMapping(value = "/search/user", method = RequestMethod.GET)
+         ParserContext parserContext = new FluentParserContext().evaluate(Customer.class);
+         BeanWrapperExpressionParser parser = new BeanWrapperExpressionParser();
+         Expression exp = parser.parseExpression(foo, parserContext);
+         message = (Object) exp.getValueType(new Customer());
   public String doGetSearch(@RequestParam String foo, HttpServletResponse response, HttpServletRequest request) {
     java.lang.Object message = new Object();
     try {
