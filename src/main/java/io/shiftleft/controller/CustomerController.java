@@ -123,7 +123,8 @@ public class CustomerController {
 	  }
 
 	  Account account = new Account(4242l,1234, "savings", 1, 0);
-	  log.info("Account Data is {}", account);
+	  //FOR DEBUGGING ONLY
+	  //log.info("Account Data is {}", account);
 	  log.info("Customer Data is {}", customer);
 
       try {
