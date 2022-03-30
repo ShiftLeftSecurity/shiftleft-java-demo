@@ -3,8 +3,8 @@ build_rules:
     finding_types:
       - vuln
       - secret
-#      - insight
-#      - "*"
+      - insight
+      - "*"
     severity:
       - SEVERITY_MEDIUM_IMPACT
       - SEVERITY_HIGH_IMPACT
