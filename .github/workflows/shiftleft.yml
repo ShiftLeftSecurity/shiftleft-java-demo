@@ -1,11 +1,14 @@
----
 # This workflow integrates ShiftLeft NG SAST with GitHub
 # Visit https://docs.shiftleft.io for help
 name: ShiftLeft
 
 on:
-  pull_request:
   workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
 
 jobs:
   NextGen-Static-Analysis:
