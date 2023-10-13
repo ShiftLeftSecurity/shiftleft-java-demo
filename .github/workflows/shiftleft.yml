@@ -60,7 +60,7 @@ jobs:
       shell: bash
       run: |
         python3 field-integrations/shiftleft-utils/bestfix.py -a ${{ github.event.repository.name }} -s .
-        BESTFIX_OUTPUT=$(cat ngsast-bestfix-$CI_PROJECT_NAME.html)
+        BESTFIX_OUTPUT=$(cat ngsast-bestfix-${{ github.event.repository.name }}.html)
         BESTFIX_BODY=$(jq -n --arg body "$BESTFIX_OUTPUT" '{body: $body}')
         curl -L \
           -X POST \
