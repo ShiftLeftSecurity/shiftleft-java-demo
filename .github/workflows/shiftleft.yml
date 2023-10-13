@@ -65,7 +65,7 @@ jobs:
         BESTFIX_BODY=$(jq -n --arg body "$BESTFIX_OUTPUT" '{body: $body}')
         git_hash=$(git rev-parse --short "$GITHUB_SHA")
         echo $git_hash
-        appendStr='{"commit_id": "${git_hash}", "path":"shiftleft.yml"}'
+        appendStr='{"commit_id": $git_hash, "path":"shiftleft.yml"}'
         FINALJSON=$(jq -n --argjson el "$BESTFIX_BODY" --argjson ex "$appendStr" '$el + $ex')
         echo $FINALJSON
         curl -L \
