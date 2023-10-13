@@ -51,10 +51,10 @@ jobs:
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
       id: extract_branch
 
-    - name: NextGen Static Analysis
-      run: SHIFTLEFT_SBOM_GENERATOR=2 ${GITHUB_WORKSPACE}/sl analyze --wait --app ${{ github.event.repository.name }} --tag branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} --vcs-prefix-correction "io/shiftleft=src/main/java/" --java --cpg --container 18fgsa/s3-resource target/hello-shiftleft-0.0.1.jar
-      env:
-        SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+    # - name: NextGen Static Analysis
+    #   run: SHIFTLEFT_SBOM_GENERATOR=2 ${GITHUB_WORKSPACE}/sl analyze --wait --app ${{ github.event.repository.name }} --tag branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} --vcs-prefix-correction "io/shiftleft=src/main/java/" --java --cpg --container 18fgsa/s3-resource target/hello-shiftleft-0.0.1.jar
+    #   env:
+    #     SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
 
     - name: Run Bestfix script to generate report
       shell: bash
@@ -64,17 +64,26 @@ jobs:
         BESTFIX_OUTPUT="Sample test content"
         BESTFIX_BODY=$(jq -n --arg body "$BESTFIX_OUTPUT" '{body: $body}')
         git_hash=$(git rev-parse --short "$GITHUB_SHA")
-        echo $git_hash
-        appendStr='{"commit_id": \""$git_hash"\", "path": "shiftleft.yml"}'
-        FINALJSON=$(jq -n --argjson el "$BESTFIX_BODY" --argjson ex "$appendStr" '$el + $ex')
-        echo $FINALJSON
+
+        JSON_STRING="{
+          \"body\":\"${BESTFIX_OUTPUT}\",
+          \"commit_id\":\"${git_hash}\",
+          \"path\":\"shiftleft.yml\"
+        }"        
+        
+        # appendStr='{"commit_id": \""$git_hash"\", "path": "shiftleft.yml"}'
+        # echo $appendStr
+        # echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+        # FINALJSON=$(jq -n --argjson el "$BESTFIX_BODY" --argjson ex "$appendStr" '$el + $ex')
+        echo $JSON_STRING
+
         curl -L \
           -X POST \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${GH_API_TOKEN}" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{github.event.number}}/comments \
-          -d ${FINALJSON}
+          -d ${JSON_STRING}
       env:
         GH_API_TOKEN: ${{ secrets.API_TOKEN }}
         SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}        
