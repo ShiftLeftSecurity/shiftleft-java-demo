@@ -62,13 +62,14 @@ jobs:
         python3 field-integrations/shiftleft-utils/bestfix.py -a ${{ github.event.repository.name }} -s .
         BESTFIX_OUTPUT=$(cat ngsast-bestfix-${{ github.event.repository.name }}.html)
         BESTFIX_BODY=$(jq -n --arg body "$BESTFIX_OUTPUT" '{body: $body}')
+        echo ${BESTFIX_BODY}
         curl -L \
           -X POST \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${GH_API_TOKEN}" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{github.event.number}}/comments \
-          -d '$BESTFIX_BODY'
+          -d '${BESTFIX_BODY}'
       env:
         GH_API_TOKEN: ${{ secrets.API_TOKEN }}
         SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}        
