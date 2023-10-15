@@ -85,6 +85,7 @@ public class DataLoader implements CommandLineRunner {
   public void run(String... arg0) throws Exception {
 
     SimpleCommandLinePropertySource ps = new SimpleCommandLinePropertySource(arg0);
+    log.info("Running Main function...");
     String encryptor = (String) ps.getProperty("jasypt.encryptor.password");
     log.info("JASP Master Creds is {}", encryptor);
 
