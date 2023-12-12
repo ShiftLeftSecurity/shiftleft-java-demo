@@ -1,0 +1,121 @@
+
+---
+  # This workflow integrates ShiftLeft NG SAST with GitHub
+  # Visit https://docs.shiftleft.io for help
+  name: Qwiet Workflow
+  
+  on:
+    pull_request:
+    workflow_dispatch:
+  
+  jobs:
+    NextGen-Static-Analysis:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+  
+      # We are building this application with Java 11
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11.0.x
+          distribution: zulu
+  
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+  
+      - name: Package with maven
+        run: mvn compile package
+  
+      - name: Download ShiftLeft CLI
+        run: |
+          curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
+  
+      # ShiftLeft requires Java 1.8. Post the package step override the version
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 8
+  
+      - name: Download bestfix script
+        shell: bash
+        run: |
+          python3 -m pip install --upgrade pip
+          git clone https://github.com/ShiftLeftSecurity/field-integrations.git 
+          pip3 install -r field-integrations/shiftleft-utils/requirements.txt
+  
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+  
+      - name: NextGen Static Analysis
+        run: SHIFTLEFT_SBOM_GENERATOR=2 ${GITHUB_WORKSPACE}/sl analyze --wait --app ${{ github.event.repository.name }} --tag branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} --vcs-prefix-correction "io/shiftleft=src/main/java/" --java --cpg --container 18fgsa/s3-resource target/hello-shiftleft-0.0.1.jar
+        env:
+          SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+  
+      - name: Run Bestfix script to generate report
+        shell: bash
+        run: |
+          #python3 field-integrations/shiftleft-utils/bestfix.py -a ${{ github.event.repository.name }} -s .
+          python3 field-integrations/shiftleft-utils/bestfix.py -a $(basename $(pwd)) -o $GITHUB_WORKSPACE/ngsast-bestfix-report.html
+          BESTFIX_OUTPUT=$(cat $GITHUB_WORKSPACE/ngsast-bestfix-report.html)
+          BESTFIX_BODY=$(jq -n --arg body "$BESTFIX_OUTPUT" '{body: $body}')
+          #git_hash=${{ github.event.pull_request.head.sha }}
+  
+          # JSON_STRING="{
+          #   \"body\":\"${BESTFIX_OUTPUT}\",
+          #   \"commit_id\":\"${git_hash}\",
+          #   \"path\":\".github/workflows/shiftleft.yml\",
+          #   \"line\":2,
+          #   \"start_line\":1,
+          #   \"start_side\":\"RIGHT\",
+          #   \"side\":\"RIGHT\"
+          # }"       
+          
+          JSON_STRING="{
+            \"body\":\"${BESTFIX_OUTPUT}\"
+          }"    
+
+          url="https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/issues/${{github.event.number}}/comments"
+
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_API_TOKEN}" \
+            "${url}" \
+            -d "${BESTFIX_BODY}"
+
+            curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_API_TOKEN}" \
+            "${url}" \
+            -d "${JSON_STRING}"            
+        env:
+          GH_API_TOKEN: ${{ secrets.API_TOKEN }}
+          SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}        
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ngsast-bestfix-report
+          path: ngsast-bestfix-report.html   
+
+    Build-Rules:  
+      runs-on: ubuntu-latest
+      needs: NextGen-Static-Analysis
+      steps:
+      - uses: actions/checkout@v3
+      - name: Download ShiftLeft CLI
+        run: |
+          curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
+      - name: Validate Build Rules
+        run: |
+          ${GITHUB_WORKSPACE}/sl check-analysis --v2 --app ${{ github.event.repository.name }} \
+              --github-pr-number=${{github.event.number}} \
+              --github-pr-user=${{ github.repository_owner }} \
+              --github-pr-repo=${{ github.event.repository.name }} \
+              --github-token=${{ secrets.API_TOKEN }}
+        env:
+          SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+          GH_API_TOKEN: ${{ secrets.API_TOKEN }}
+  
