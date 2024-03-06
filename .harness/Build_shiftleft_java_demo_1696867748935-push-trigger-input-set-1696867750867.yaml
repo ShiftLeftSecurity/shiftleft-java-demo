@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_shiftleft_java_demo_1696867748935-push-trigger-input-set
+  identifier: Build_shiftleft_java_demo_1696867748935pushtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: QwietjavaHarness
+  pipeline:
+    identifier: Build_shiftleft_java_demo_1696867748935
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
