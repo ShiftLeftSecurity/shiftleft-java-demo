@@ -1,0 +1,27 @@
+---
+name: QwietPoCDocker
+
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron: '0 11 * * 6'
+
+jobs:
+  NextGen-Static-Analysis:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run preZero Scan with ShiftLeft
+      shell: bash
+      run: |
+        docker run --platform linux/amd64 --rm -t \
+          --name slcore \
+          -e SHIFTLEFT_ACCESS_TOKEN="$SHIFTLEFT_ACCESS_TOKEN" \
+          -v "${{ github.workspace }}:/app" \
+          -v /tmp:/tmp \
+          shiftleft/core:latest \
+          sl analyze --verbose --wait --app "QWIET_JAVA" --container 18fgsa/s3-resource /app
+env:
+        SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}

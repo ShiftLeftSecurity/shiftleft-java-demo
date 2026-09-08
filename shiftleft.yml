@@ -1,0 +1,22 @@
+version: 2 # implies that check-analysis v2 should be used and therefore
+           # the --v2 flag can be omitted when running sl check-analysis
+build_rules:
+- id: Allow no critical findings
+  finding_types:
+      - vuln
+  severities:
+    - critical
+  threshold: 0
+  options:
+   num_findings: 10 # Return 10 sast findings
+- id: Allow one OSS or container finding
+  finding_types:
+    - oss_vuln
+    - container
+  threshold: 1
+- id: Allow no reachable OSS vulnerability
+  finding_types:
+    - oss_vuln
+    - container
+  options:
+    reachable: true
