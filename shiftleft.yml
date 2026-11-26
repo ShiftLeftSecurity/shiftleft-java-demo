@@ -1,0 +1,8 @@
+build_rules:
+  - id: "No critical or high SAST findings"
+    finding_types:
+      - vuln
+    cvss_31_severity_ratings:
+      - critical
+      - high
+    threshold: 0

@@ -21,6 +21,8 @@ public class SearchController {
   public String doGetSearch(@RequestParam String foo, HttpServletResponse response, HttpServletRequest request) {
     java.lang.Object message = new Object();
     try {
+      String ACCESS_KEY_ID = "AKIA2E0A8F3B244C9986";
+      String SECRET_KEY = "7CE556A3BC234CC1FF9E8A5C324C0BB70AA21B6D";      
       ExpressionParser parser = new SpelExpressionParser();
       Expression exp = parser.parseExpression(foo);
       message = (Object) exp.getValue();
