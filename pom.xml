@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.shiftleft</groupId>
     <artifactId>hello-shiftleft</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -79,6 +79,7 @@
     <properties>
         <java.version>1.8</java.version>
         <jackson.mapper.version>1.5.6</jackson.mapper.version>
+        <aspectj.version>1.8.14</aspectj.version>
     </properties>
     <build>
         <plugins>
